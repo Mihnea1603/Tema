@@ -17,14 +17,16 @@ typedef struct NodePlayer
 typedef struct NodeTeam
 {
     char *team;
-    NodePlayer *top;
+    NodePlayer *topPlayers;
     struct NodeTeam *next;
 } NodeTeam;
 
-void pushPlayer(NodePlayer **top, Player player);
-void popPlayer(NodePlayer **top);
-void deleteStackPlayer(NodePlayer **top);
+void pushPlayer(NodePlayer **topPlayers, Player player);
+void freePlayer(NodePlayer *player);
+void popPlayer(NodePlayer **topPlayers);
+void deleteStackPlayers(NodePlayer **topPlayers);
 
-void pushTeam(NodeTeam **top, char *team);
-void popPlayer(NodePlayer **top);
-void deleteStackPlayer(NodePlayer **top);
+void pushTeam(NodeTeam **topTeams, char *team);
+void freeTeam(NodeTeam *team);
+void popTeam(NodeTeam **topTeams);
+void deleteStackTeams(NodeTeam **topTeams);
