@@ -1,3 +1,6 @@
+#ifndef STACKS_H
+#define STACKS_H
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -21,12 +24,14 @@ typedef struct NodeTeam
     struct NodeTeam *next;
 } NodeTeam;
 
-void pushPlayer(NodePlayer **topPlayers,Player player);
+void pushPlayer(NodePlayer **topPlayers,char firstName[],char secondName[],int points);
 void freePlayer(NodePlayer *player);
 void popPlayer(NodePlayer **topPlayers);
 void deleteStackPlayers(NodePlayer **topPlayers);
 
-void pushTeam(NodeTeam **topTeams,char *name);
+void pushTeam(NodeTeam **topTeams,char name[]);
 void freeTeam(NodeTeam *team);
 void popTeam(NodeTeam **topTeams);
 void deleteStackTeams(NodeTeam **topTeams);
+
+#endif

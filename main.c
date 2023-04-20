@@ -1,32 +1,18 @@
+#include "stacks.h"
 #include "queues.h"
+#include "BST.h"
 
 void createPlayer(NodePlayer **topPlayers,FILE *g)
 {
-    Player player;
-    char s[25];
-    fscanf(g,"%s",s);
-    player.firstName=(char *)malloc((strlen(s)+1)*sizeof(char));
-    if(player.firstName==NULL)
-    {
-        printf("Memory allocation error");
-        exit(1);
-    }
-    strcpy(player.firstName,s);
-    fscanf(g,"%s",s);
-    player.secondName=(char *)malloc((strlen(s)+1)*sizeof(char));
-    if(player.secondName==NULL)
-    {
-        printf("Memory allocation error");
-        exit(1);
-    }
-    strcpy(player.secondName,s);
-    fscanf(g,"%d",&player.points);
-    pushPlayer(topPlayers,player);
+    int k;
+    char s1[25],s2[25];
+    fscanf(g,"%s%s%d",s1,s2,&k);
+    pushPlayer(topPlayers,s1,s2,k);
 }
 void createTeam(NodeTeam **topTeams,FILE *g)
 {
     int noPlayers;
-    char *name,s[35];
+    char s[35];
     fscanf(g,"%d",&noPlayers);
     fseek(g,1,1);
     fgets(s,35,g);
@@ -41,31 +27,13 @@ void createTeam(NodeTeam **topTeams,FILE *g)
             break;
         }
     }
-    name=(char *)malloc((strlen(s)+1)*sizeof(char));
-    if(name==NULL)
-    {
-        printf("Memory allocation error");
-        exit(1);
-    }
-    strcpy(name,s);
-    pushTeam(topTeams,name);
+    pushTeam(topTeams,s);
     for(int i=0; i<noPlayers; i++)
     {
         createPlayer(&(*topTeams)->topPlayers,g);
     }
 }
 
-float pointsTeam(NodeTeam *team)
-{
-    int n=0;
-    float k=0;
-    for(NodePlayer *p=team->topPlayers; p!=NULL; p=p->next)
-    {
-        k+=p->player.points;
-        n++;
-    }
-    return k/n;
-}
 float minPoints(NodeTeam *topTeams)
 {
     float m=pointsTeam(topTeams),k;
@@ -167,6 +135,17 @@ void printRound(Queue *q,NodeTeam *topWinners,int round,int noTeams,FILE *h)
         }
     }
 }
+void createTop8(NodeTeam **topTeams,NodeTeam *topWinners)
+{
+    for(NodeTeam *p=topWinners; p!=NULL; p=p->next)
+    {
+        pushTeam(topTeams,p->name);
+        for(NodePlayer *q=p->topPlayers; q!=NULL; q=q->next)
+        {
+            pushPlayer(&(*topTeams)->topPlayers,q->player.firstName,q->player.secondName,q->player.points);
+        }
+    }
+}
 
 int main()
 {
@@ -236,17 +215,28 @@ int main()
                 }
             }
             printRound(q,topWinners,round,noTeams,h);
-            if(noTeams>8)
+            deleteStackTeams(&topLosers);
+            if(noTeams==16)
             {
-                deleteStackTeams(&topLosers);
+                topTeams=NULL;
+                createTop8(&topTeams,topWinners);
             }
             round++;
             noTeams/=2;
             deleteQueue(q);
         }
-        topTeams=topLosers;
-        topWinners->next=topTeams;
-        topTeams=topWinners;
+        freeTeam(topWinners);
+    }
+    Node *root=NULL;
+    if(c[3]==1)
+    {
+        int i=0;
+        for(NodeTeam *p=topTeams; p!=NULL; p=p->next)
+        {
+            root=insertNode(root,p);
+        }
+        fprintf(h,"\n\nTOP 8 TEAMS:\n");
+        inorder(root,&i,h);
     }
     fclose(h);
     deleteStackTeams(&topTeams);

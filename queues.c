@@ -2,8 +2,7 @@
 
 Queue *createQueue()
 {
-    Queue *q;
-    q=(Queue*)malloc(sizeof(Queue));
+    Queue *q=(Queue*)malloc(sizeof(Queue));
     if(q==NULL)
     {
         printf("Memory allocation error");

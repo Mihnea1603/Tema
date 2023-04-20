@@ -1,14 +1,18 @@
 #include "stacks.h"
 
-void pushPlayer(NodePlayer **topPlayers,Player player)
+void pushPlayer(NodePlayer **topPlayers,char firstName[],char secondName[],int points)
 {
     NodePlayer *p=(NodePlayer*)malloc(sizeof(NodePlayer));
-    if(p==NULL)
+    p->player.firstName=(char *)malloc((strlen(firstName)+1)*sizeof(char));
+    p->player.secondName=(char *)malloc((strlen(secondName)+1)*sizeof(char));
+    if(p==NULL || p->player.firstName==NULL || p->player.secondName==NULL)
     {
         printf("Memory allocation error");
         exit(1);
     }
-    p->player=player;
+    strcpy(p->player.firstName,firstName);
+    strcpy(p->player.secondName,secondName);
+    p->player.points=points;
     p->next=*topPlayers;
     *topPlayers=p;
 }
@@ -32,15 +36,16 @@ void deleteStackPlayers(NodePlayer **topPlayers)
     }
 }
 
-void pushTeam(NodeTeam **topTeams,char *name)
+void pushTeam(NodeTeam **topTeams,char name[])
 {
     NodeTeam *p=(NodeTeam*)malloc(sizeof(NodeTeam));
-    if(p==NULL)
+    p->name=(char *)malloc((strlen(name)+1)*sizeof(char));
+    if(p==NULL || p->name==NULL)
     {
         printf("Memory allocation error");
         exit(1);
     }
-    p->name=name;
+    strcpy(p->name,name);
     p->topPlayers=NULL;
     p->next=*topTeams;
     *topTeams=p;
