@@ -3,9 +3,14 @@
 void pushPlayer(NodePlayer **topPlayers,char firstName[],char secondName[],int points)
 {
     NodePlayer *p=(NodePlayer*)malloc(sizeof(NodePlayer));
+    if(p==NULL)
+    {
+        printf("Memory allocation error");
+        exit(1);
+    }
     p->player.firstName=(char *)malloc((strlen(firstName)+1)*sizeof(char));
     p->player.secondName=(char *)malloc((strlen(secondName)+1)*sizeof(char));
-    if(p==NULL || p->player.firstName==NULL || p->player.secondName==NULL)
+    if(p->player.firstName==NULL || p->player.secondName==NULL)
     {
         printf("Memory allocation error");
         exit(1);
@@ -30,7 +35,7 @@ void popPlayer(NodePlayer **topPlayers)
 }
 void deleteStackPlayers(NodePlayer **topPlayers)
 {
-    while (*topPlayers!=NULL)
+    while(*topPlayers!=NULL)
     {
         popPlayer(topPlayers);
     }
@@ -39,13 +44,19 @@ void deleteStackPlayers(NodePlayer **topPlayers)
 void pushTeam(NodeTeam **topTeams,char name[])
 {
     NodeTeam *p=(NodeTeam*)malloc(sizeof(NodeTeam));
+    if(p==NULL)
+    {
+        printf("Memory allocation error");
+        exit(1);
+    }
     p->name=(char *)malloc((strlen(name)+1)*sizeof(char));
-    if(p==NULL || p->name==NULL)
+    if(p->name==NULL)
     {
         printf("Memory allocation error");
         exit(1);
     }
     strcpy(p->name,name);
+    p->points=0;
     p->topPlayers=NULL;
     p->next=*topTeams;
     *topTeams=p;
@@ -64,7 +75,7 @@ void popTeam(NodeTeam **topTeams)
 }
 void deleteStackTeams(NodeTeam **topTeams)
 {
-    while (*topTeams!=NULL)
+    while(*topTeams!=NULL)
     {
         popTeam(topTeams);
     }

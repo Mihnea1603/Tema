@@ -20,6 +20,7 @@ typedef struct NodePlayer
 typedef struct NodeTeam
 {
     char *name;
+    float points;
     NodePlayer *topPlayers;
     struct NodeTeam *next;
 } NodeTeam;

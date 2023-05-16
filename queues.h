@@ -10,7 +10,7 @@ typedef struct Queue
     NodeMatch *front,*rear;
 } Queue;
 
-Queue* createQueue();
+Queue *createQueue();
 void enQueue(Queue *q,NodeTeam *team1,NodeTeam *team2);
 void deQueue(Queue *q);
 void deleteQueue(Queue *q);

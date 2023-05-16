@@ -22,7 +22,7 @@ void enQueue(Queue *q,NodeTeam *team1,NodeTeam *team2)
     p->team1=team1;
     p->team2=team2;
     p->next=NULL;
-    if (q->rear==NULL)
+    if(q->rear==NULL)
     {
         q->front=q->rear=p;
     }
@@ -41,9 +41,9 @@ void deQueue(Queue *q)
 }
 void deleteQueue(Queue *q)
 {
-    while (q->front!=NULL)
+    while(q->front!=NULL)
     {
         deQueue(q);
     }
-    free(q);
+    q->rear=NULL;
 }

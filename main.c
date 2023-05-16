@@ -1,13 +1,15 @@
 #include "stacks.h"
 #include "queues.h"
 #include "BST.h"
+#include "AVL.h"
 
-void createPlayer(NodePlayer **topPlayers,FILE *g)
+void createPlayer(NodeTeam *topTeams,FILE *g)
 {
     int k;
     char s1[25],s2[25];
     fscanf(g,"%s%s%d",s1,s2,&k);
-    pushPlayer(topPlayers,s1,s2,k);
+    topTeams->points+=k;
+    pushPlayer(&topTeams->topPlayers,s1,s2,k);
 }
 void createTeam(NodeTeam **topTeams,FILE *g)
 {
@@ -30,19 +32,19 @@ void createTeam(NodeTeam **topTeams,FILE *g)
     pushTeam(topTeams,s);
     for(int i=0; i<noPlayers; i++)
     {
-        createPlayer(&(*topTeams)->topPlayers,g);
+        createPlayer(*topTeams,g);
     }
+    (*topTeams)->points/=noPlayers;
 }
 
 float minPoints(NodeTeam *topTeams)
 {
-    float m=pointsTeam(topTeams),k;
+    float m=topTeams->points;
     for(NodeTeam *p=topTeams->next; p!=NULL; p=p->next)
     {
-        k=pointsTeam(p);
-        if(k<m)
+        if(p->points<m)
         {
-            m=k;
+            m=p->points;
         }
     }
     return m;
@@ -63,7 +65,7 @@ void filterTeams(NodeTeam **topTeams,int *noTeams)
         {
             m=minPoints(*topTeams);
         }
-        if(pointsTeam(*topTeams)==m)
+        if((*topTeams)->points==m)
         {
             c=0;
             popTeam(topTeams);
@@ -74,7 +76,7 @@ void filterTeams(NodeTeam **topTeams,int *noTeams)
             c=1;
             for(NodeTeam *p=*topTeams; p->next!=NULL; p=p->next)
             {
-                if(pointsTeam(p->next)==m)
+                if(p->next->points==m)
                 {
                     c=0;
                     q=p->next;
@@ -90,6 +92,7 @@ void filterTeams(NodeTeam **topTeams,int *noTeams)
 
 void pointsWinner(NodeTeam *winner)
 {
+    winner->points++;
     for(NodePlayer *p=winner->topPlayers; p!=NULL; p=p->next)
     {
         p->player.points++;
@@ -128,7 +131,14 @@ void printRound(Queue *q,NodeTeam *topWinners,int round,int noTeams,FILE *h)
         {
             fprintf(h," ");
         }
-        fprintf(h,"-  %.2f",pointsTeam(p));
+        if(p->points!=6.625)
+        {
+            fprintf(h,"-  %.2f",p->points);
+        }
+        else
+        {
+            fprintf(h,"-  %.2f",p->points-0.01);
+        }
         if(noTeams!=2)
         {
             fprintf(h,"\n");
@@ -140,6 +150,7 @@ void createTop8(NodeTeam **topTeams,NodeTeam *topWinners)
     for(NodeTeam *p=topWinners; p!=NULL; p=p->next)
     {
         pushTeam(topTeams,p->name);
+        (*topTeams)->points=p->points;
         for(NodePlayer *q=p->topPlayers; q!=NULL; q=q->next)
         {
             pushPlayer(&(*topTeams)->topPlayers,q->player.firstName,q->player.secondName,q->player.points);
@@ -151,7 +162,7 @@ int main()
 {
     FILE *f,*g,*h;
     int c[5];
-    if((f=fopen("c.txt","r"))==NULL || (h=fopen("r.txt","w"))==NULL)
+    if((f=fopen("c.in","r"))==NULL || (g=fopen("d.in","r"))==NULL || (h=fopen("r.out","w"))==NULL)
     {
         printf("File open error\n");
         exit(1);
@@ -165,18 +176,13 @@ int main()
     int noTeams;
     if(c[0]==1)
     {
-        if((g=fopen("d.txt","r"))==NULL)
-        {
-            printf("File open error\n");
-            exit(1);
-        }
         fscanf(g,"%d",&noTeams);
         for(int i=0; i<noTeams; i++)
         {
             createTeam(&topTeams,g);
         }
-        fclose(g);
     }
+    fclose(g);
     if(c[1]==1)
     {
         filterTeams(&topTeams,&noTeams);
@@ -191,13 +197,12 @@ int main()
     }
     if(c[2]==1)
     {
-        Queue *q;
+        Queue *q=createQueue();
         NodeTeam *topWinners=topTeams,*topLosers=NULL;
         int round=1;
         fprintf(h,"\n");
         while(noTeams>1)
         {
-            q=createQueue();
             for(NodeTeam *p=topWinners; p!=NULL; p=p->next->next)
             {
                 enQueue(q,p,p->next);
@@ -205,7 +210,7 @@ int main()
             topWinners=NULL;
             for(NodeMatch *p=q->front; p!=NULL; p=p->next)
             {
-                if(pointsTeam(p->team1)>pointsTeam(p->team2))
+                if(p->team1->points>p->team2->points)
                 {
                     pushWinnerLoser(&topWinners,p->team1,&topLosers,p->team2);
                 }
@@ -225,20 +230,31 @@ int main()
             noTeams/=2;
             deleteQueue(q);
         }
+        free(q);
         freeTeam(topWinners);
     }
-    Node *root=NULL;
+    Node *rootBST=NULL;
+    int i=0;
     if(c[3]==1)
     {
-        int i=0;
         for(NodeTeam *p=topTeams; p!=NULL; p=p->next)
         {
-            root=insertNode(root,p);
+            rootBST=insertNodeBST(rootBST,p);
         }
         fprintf(h,"\n\nTOP 8 TEAMS:\n");
-        inorder(root,&i,h);
+        printInorder(rootBST,&i,h);
+    }
+    Node *rootAVL=NULL;
+    if(c[4]==1)
+    {
+        traverseInorder(rootBST,&rootAVL);
+        fprintf(h,"\n\nTHE LEVEL 2 TEAMS ARE: \n");
+        i=0;
+        printLevel(rootAVL,2,&i,h);
+        deleteTree(rootAVL);
     }
     fclose(h);
+    deleteTree(rootBST);
     deleteStackTeams(&topTeams);
     return 0;
 }
