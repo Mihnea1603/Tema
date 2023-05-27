@@ -106,9 +106,9 @@ void pushWinnerLoser(NodeTeam **topWinners,NodeTeam *winner,NodeTeam **topLosers
     loser->next=*topLosers;
     *topLosers=loser;
 }
-void printRound(Queue *q,NodeTeam *topWinners,int round,int noTeams,FILE *h)
+void printRound(Queue *q,NodeTeam *topWinners,int round,FILE *h)
 {
-    fprintf(h,"\n--- ROUND NO:%d\n",round);
+    fprintf(h,"--- ROUND NO:%d\n",round);
     for(NodeMatch *p=q->front; p!=NULL; p=p->next)
     {
         fprintf(h,"%s",p->team1->name);
@@ -133,15 +133,11 @@ void printRound(Queue *q,NodeTeam *topWinners,int round,int noTeams,FILE *h)
         }
         if(p->points!=6.625)
         {
-            fprintf(h,"-  %.2f",p->points);
+            fprintf(h,"-  %.2f\n",p->points);
         }
         else
         {
-            fprintf(h,"-  %.2f",p->points-0.01);
-        }
-        if(noTeams!=2)
-        {
-            fprintf(h,"\n");
+            fprintf(h,"-  %.2f\n",p->points-0.01);
         }
     }
 }
@@ -158,11 +154,16 @@ void createTop8(NodeTeam **topTeams,NodeTeam *topWinners)
     }
 }
 
-int main()
+int main(int argc,char *argv[])
 {
+    if(argc<4)
+    {
+        printf("Rule: lanParty c.in d.in r.out");
+        exit(1);
+    }
     FILE *f,*g,*h;
     int c[5];
-    if((f=fopen("c.in","r"))==NULL || (g=fopen("d.in","r"))==NULL || (h=fopen("r.out","w"))==NULL)
+    if((f=fopen(argv[1],"r"))==NULL || (g=fopen(argv[2],"r"))==NULL || (h=fopen(argv[3],"w"))==NULL)
     {
         printf("File open error\n");
         exit(1);
@@ -189,11 +190,7 @@ int main()
     }
     for(NodeTeam *p=topTeams; p!=NULL; p=p->next)
     {
-        fprintf(h,"%s",p->name);
-        if(p->next!=NULL)
-        {
-            fprintf(h,"\n");
-        }
+        fprintf(h,"%s\n",p->name);
     }
     if(c[2]==1)
     {
@@ -219,7 +216,11 @@ int main()
                     pushWinnerLoser(&topWinners,p->team2,&topLosers,p->team1);
                 }
             }
-            printRound(q,topWinners,round,noTeams,h);
+            printRound(q,topWinners,round,h);
+            if(noTeams>2)
+            {
+                fprintf(h,"\n");
+            }
             deleteStackTeams(&topLosers);
             if(noTeams==16)
             {
@@ -234,23 +235,21 @@ int main()
         freeTeam(topWinners);
     }
     Node *rootBST=NULL;
-    int i=0;
     if(c[3]==1)
     {
         for(NodeTeam *p=topTeams; p!=NULL; p=p->next)
         {
             rootBST=insertNodeBST(rootBST,p);
         }
-        fprintf(h,"\n\nTOP 8 TEAMS:\n");
-        printInorder(rootBST,&i,h);
+        fprintf(h,"\nTOP 8 TEAMS:\n");
+        printInorder(rootBST,h);
     }
     Node *rootAVL=NULL;
     if(c[4]==1)
     {
         traverseInorder(rootBST,&rootAVL);
-        fprintf(h,"\n\nTHE LEVEL 2 TEAMS ARE: \n");
-        i=0;
-        printLevel(rootAVL,2,&i,h);
+        fprintf(h,"\nTHE LEVEL 2 TEAMS ARE: \n");
+        printLevel(rootAVL,2,h);
         deleteTree(rootAVL);
     }
     fclose(h);

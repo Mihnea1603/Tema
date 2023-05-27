@@ -11,7 +11,7 @@ typedef struct Node
 
 Node *newNode(NodeTeam *team);
 Node *insertNodeBST(Node *node,NodeTeam *team);
-void printInorder(Node *root,int *k,FILE *h);
+void printInorder(Node *root,FILE *h);
 void deleteTree(Node *root);
 
 #endif

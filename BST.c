@@ -39,23 +39,18 @@ Node *insertNodeBST(Node *root,NodeTeam *team)
     }
     return root;
 }
-void printInorder(Node *root,int *k,FILE *h)
+void printInorder(Node *root,FILE *h)
 {
     if(root!=NULL)
     {
-        printInorder(root->right,k,h);
+        printInorder(root->right,h);
         fprintf(h,"%s",root->team->name);
         for(int i=0; i<34-strlen(root->team->name); i++)
         {
             fprintf(h," ");
         }
-        fprintf(h,"-  %.2f",root->team->points);
-        (*k)++;
-        if(*k!=8)
-        {
-            fprintf(h,"\n");
-        }
-        printInorder(root->left,k,h);
+        fprintf(h,"-  %.2f\n",root->team->points);
+        printInorder(root->left,h);
     }
 }
 void deleteTree(Node *root)

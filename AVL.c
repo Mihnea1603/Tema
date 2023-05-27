@@ -58,8 +58,8 @@ Node *insertNodeAVL(Node *root,NodeTeam *team)
             root->right=insertNodeAVL(root->right,team);
         }
     }
-    int h=nodeHeight(root->left)-nodeHeight(root->right);
-    if (h>1)
+    int k=nodeHeight(root->left)-nodeHeight(root->right);
+    if (k>1)
     {
         if(team->points<root->left->team->points)
         {
@@ -81,7 +81,7 @@ Node *insertNodeAVL(Node *root,NodeTeam *team)
             }
         }
     }
-    if (h<-1)
+    if (k<-1)
     {
         if(team->points<root->right->team->points)
         {
@@ -114,23 +114,18 @@ void traverseInorder(Node *rootBST,Node **rootAVL)
         traverseInorder(rootBST->left,rootAVL);
     }
 }
-void printLevel(Node *root,int level,int *k,FILE *h)
+void printLevel(Node *root,int level,FILE *h)
 {
     if(root!=NULL)
     {
         if(level==0)
         {
-            fprintf(h,"%s",root->team->name);
-            (*k)++;
-            if(*k!=4)
-            {
-                fprintf(h,"\n");
-            }
+            fprintf(h,"%s\n",root->team->name);
         }
         else
         {
-            printLevel(root->right,level-1,k,h);
-            printLevel(root->left,level-1,k,h);
+            printLevel(root->right,level-1,h);
+            printLevel(root->left,level-1,h);
         }
     }
 }
